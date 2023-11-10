@@ -1,0 +1,94 @@
+
+
+.container-fluid {
+    --bs-gutter-x: 0;
+}
+
+
+.bg-body-tertiary {
+    padding: 0 20px;
+    background-color: #299be4 !important;
+}
+
+.navbar-brand {
+    font-size: 36px;
+    color: #fff;
+    font-weight: 500;
+}
+
+.navbar-brand:hover {
+    color: #fff;
+}
+
+table thead tr th {
+    background-color: #4caf50 !important;
+    color: #fff !important;
+}
+
+.hide {
+    display: none;
+}
+
+footer {
+    padding: 10px 0;
+    position: fixed;
+    height: 65px;
+    width: 100%;
+    bottom: 0;
+    background-color: #299be4;
+    display: flex;
+    gap: 20px;
+    padding-left: 100px;
+    align-items: center;
+}
+
+footer button {
+    height: 42px;
+}
+
+footer.success {
+    background-color: #d1e7dd;
+}
+
+footer.error {
+    background-color: #f8d7da;
+}
+
+.notification p {
+    font-weight: 500;
+}
+
+.notification p.success {
+    color: #246040;
+}
+
+.notification p.error {
+    color: #b05965;
+}
+
+label.error {
+    color: #cf0000;
+    display: list-item;
+    margin-left: 30px;
+}
+
+input.error {
+    border: solid 1px #cf0000;
+}
+
+.area-error {
+    background-color: #ffd1d1;
+    padding: 10px 0 10px 0;
+}
+
+.area-error ul {
+    color: #c40000;
+    margin-bottom: 0;
+}
+
+#tbCustomer tbody td span.selected {
+    height: 25px;
+    width: 6px;
+    background-color: #1cb11c;
+    display: block;
+}

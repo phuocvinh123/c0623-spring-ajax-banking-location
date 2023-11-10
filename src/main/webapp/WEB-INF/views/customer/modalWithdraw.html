@@ -1,0 +1,43 @@
+<th:block th:fragment="modalWithdraw">
+  <div class="modal fade" id="modalWithdraw" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Modal Withdraw</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="frmWithdraw" method="post">
+            <div class="row mb-3 mt-3">
+              <div class="col-lg-6">
+                <label for="fullNameWi" class="form-label fw-bold">Full Name</label>
+                <input type="text" class="form-control" id="fullNameWi"  readonly>
+              </div>
+              <div class="col-lg-6">
+                <label for="emailWi" class="form-label fw-bold">Email</label>
+                <input type="email" class="form-control" id="emailWi"  readonly>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-lg-6">
+                <label for="balanceWi" class="form-label fw-bold">Current balance</label>
+                <input type="text" class="form-control" id="balanceWi"  readonly>
+              </div>
+              <div class="col-lg-6">
+                <label for="transactionWi" class="form-label fw-bold">Transaction amount</label>
+                <input type="number" class="form-control" id="transactionWi" >
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-outline-success" id="btnWithdraw">
+            <i class="fas fa-minus"></i>
+            Withdraw
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>

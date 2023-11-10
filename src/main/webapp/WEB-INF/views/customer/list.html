@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>List of customers</title>
+    <th:block th:replace="layout/head"/>
+</head>
+
+<body>
+<div class="container-fluid">
+    <header>
+        <nav class="navbar bg-body-tertiary">
+            <div class="container-fluid">
+                <a class="navbar-brand">List of customers</a>
+                <div class="d-flex" style="gap: 10px;">
+                    <button class="btn btn-outline-light" type="button">
+                        <i class="fas fa-history"></i>
+                        Transfer histories
+                    </button>
+                    <button type="button" class="btn btn-outline-light" data-bs-toggle="modal"
+                            data-bs-target="#modalCreate">
+                        <i class="far fa-plus-square"></i>
+                        Add new customer
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="content">
+        <table id="tbCustomer" class="table table-hover">
+            <thead>
+            <tr>
+                <th></th>
+                <th>#</th>
+                <th>FullName</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Province</th>
+                <th>District</th>
+                <th>Ward</th>
+                <th>Address</th>
+                <th>Balance</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <footer>
+
+    </footer>
+</div>
+
+<div id="loading" class="sk-chase hide">
+    <div class="sk-chase-dot"></div>
+    <div class="sk-chase-dot"></div>
+    <div class="sk-chase-dot"></div>
+    <div class="sk-chase-dot"></div>
+    <div class="sk-chase-dot"></div>
+    <div class="sk-chase-dot"></div>
+</div>
+
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive"
+         aria-atomic="true">
+        <div class="d-flex">
+            <div id="toast-body" class="toast-body">
+            </div>
+            <button type="button" id="btnCloseToast" class="btn-close btn-close-white me-2 m-auto"
+                    data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Create -->
+<th:block th:replace="customer/modalCreate"/>
+
+<!-- Modal Update -->
+<th:block th:replace="customer/modalUpdate"/>
+
+<!-- Modal Deposit -->
+<th:block th:replace="customer/modalDeposit"/>
+
+<!-- Modal Withdraw -->
+<th:block th:replace="customer/modalWithdraw"/>
+
+<!-- Modal Transfer -->
+<th:block th:replace="customer/modalTransfer"/>
+
+<script>
+
+    const page = {
+        url: {
+            getAllProvinces: 'https://vapi.vnappmob.com/api/province/',
+            getAllDistrictsByProvinceId: 'https://vapi.vnappmob.com/api/province/district/',
+            getAllWardsByDistrictId: 'https://vapi.vnappmob.com/api/province/ward/',
+            getCustomerById: 'http://localhost:8080/api/customers/',
+            createCustomer: 'http://localhost:8080/api/customers'
+        },
+        elements: {},
+        loadData: {},
+        commands: {}
+    }
+    //create
+    page.elements.modalCreate = $('#modalCreate');
+    page.elements.frmCreate = $('#frmCreate');
+    page.elements.fullNameCre = $('#fullNameCre');
+    page.elements.emailCre = $('#emailCre');
+    page.elements.phoneCre = $('#phoneCre');
+    page.elements.provinceCre = $('#provinceCre');
+    page.elements.districtCre = $('#districtCre');
+    page.elements.wardCre = $('#wardCre');
+    page.elements.addressCre = $('#addressCre');
+    page.elements.btnCreate = $('#btnCreate');
+    //Update
+    page.elements.modalUpdate = $('#modalUpdate');
+    page.elements.frmUpdate = $('#frmUpdate');
+    page.elements.fullNameUp = $('#fullNameUp');
+    page.elements.emailUp = $('#emailUp');
+    page.elements.phoneUp = $('#phoneUp');
+    page.elements.provinceUp = $('#provinceUp');
+    page.elements.districtUp = $('#districtUp');
+    page.elements.wardUp = $('#wardUp');
+    page.elements.addressUp = $('#addressUp');
+    page.elements.btnUpdate = $('#btnUpdate');
+    //Deposit
+    page.elements.modalDeposit = $('#modalDeposit');
+    page.elements.frmDeposit = $('#frmDeposit');
+    page.elements.fullNameDe = $('#fullNameDe');
+    page.elements.emailDe = $('#emailDe');
+    page.elements.balanceDe = $('#balanceDe');
+    page.elements.transactionDe = $('#transactionDe');
+    page.elements.btnDeposit = $('#btnDeposit');
+
+
+    page.elements.bodyCustomer = $('#tbCustomer tbody')
+    page.elements.footer = $('footer')
+
+    page.elements.loading = $('#loading');
+
+    page.elements.toastLive = $('#liveToast')
+    page.elements.toastBody = $('#toast-body')
+    page.elements.btnCloseToast = $('#btnCloseToast')
+
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(page.elements.toastLive)
+
+    let customerId = 0;
+
+    async function fetchALlPerson() {
+        return await $.ajax({
+            url: "http://localhost:8080/api/customers"
+        })
+    }
+
+    page.loadData.getALlPerson = async () => {
+        const persons = await fetchALlPerson();
+
+        persons.forEach(item => {
+            const str = page.commands.renderPerson(item)
+            // bodyCustomer.innerHTML += str;
+            page.elements.bodyCustomer.prepend(str);
+        });
+
+        page.commands.handleClickRow()
+
+
+    }
+
+    const getPersonById = async (customerId) => {
+        const response = await fetch("http://localhost:8080/api/customers/" + customerId);
+        return await response.json();
+
+    }
+    const fetchUpdatePerson = (customerId, obj) => {
+        return $.ajax({
+            method: 'PATCH',
+            url: "http://localhost:8080/api/customers/" + customerId,
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            },
+            data: JSON.stringify(obj),
+            dataType: 'json'
+        });
+    };
+
+    const fetchCreateCustomer = (customerId, obj) => {
+        return $.ajax({
+            method: 'POST',
+            url: "http://localhost:8080/api/customers/" + customerId,
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            },
+            data: JSON.stringify(obj),
+            dataType: 'json'
+        });
+    };
+
+    page.commands.renderPerson = (obj) => {
+        return `
+                <tr id="tr_${obj.id}">
+                    <td><span></span></td>
+                    <td>${obj.id}</td>
+                    <td>${obj.fullName}</td>
+                    <td>${obj.email}</td>
+                    <td>${obj.phone}</td>
+                    <td>${obj.locationRegion.provinceName}</td>
+                    <td>${obj.locationRegion.districtName}</td>
+                    <td>${obj.locationRegion.wardName}</td>
+                    <td>${obj.locationRegion.address}</td>
+                    <td>${obj.balance}</td>
+                </tr>
+            `
+    }
+
+    page.commands.renderFooter = () => {
+        return `
+                <button class="btn btn-secondary edit" >
+                    <i class="far fa-edit"></i>
+                    Update
+                </button>
+                <button class="btn btn-success deposit">
+                    <i class="fas fa-plus"></i>
+                    Deposit
+                </button>
+                <button class="btn btn-warning withdraw">
+                    <i class="fas fa-minus"></i>
+                    Withdraw
+                </button>
+                <button class="btn btn-primary transfer">
+                    <i class="fas fa-exchange-alt"></i>
+                    Transfer
+                </button>
+                <button class="btn btn-danger delete">
+                    <i class="fas fa-ban"></i>
+                    Inactive
+                </button>
+            `
+    }
+
+    $('#modalCreate').on('hidden.bs.modal', () => {
+        $('#frmCreate').trigger('reset')
+        $('#frmCreate input').removeClass('error')
+        $('#frmCreate label.error').remove()
+    })
+
+    page.elements.frmCreate.validate({
+        onkeyup: function (element) {
+            $(element).valid()
+        },
+        onclick: false,
+        onfocusout: false,
+        // rules: {
+        //     fullNameCre: {
+        //         required: true
+        //     },
+        //     addressCre: {
+        //         required: true
+        //     }
+        // },
+        // messages: {
+        //     fullNameCre: {
+        //         required: 'FullName is required'
+        //     },
+        //     addressCre: {
+        //         required: 'Address is required'
+        //     }
+        // },
+        errorLabelContainer: "#modalCreate .area-error",
+        errorPlacement: function (error, element) {
+            error.appendTo("#modalCreate .area-error");
+        },
+        showErrors: function (errorMap, errorList) {
+            if (this.numberOfInvalids() > 0) {
+                $("#modalCreate .area-error").removeClass("hide").addClass("show");
+            } else {
+                $("#modalCreate .area-error").removeClass("show").addClass("hide").empty();
+                $("#frmCreate input.error").removeClass("error");
+            }
+            this.defaultShowErrors();
+        },
+        submitHandler: () => {
+            page.commands.createCustomer()
+            page.commands.handleClickRow()
+        }
+    })
+
+    page.commands.createCustomer = () => {
+        const provinceId = page.elements.provinceCre.val()
+        const provinceName = page.elements.provinceCre.find('option:selected').text()
+        const districtId = page.elements.districtCre.val()
+        const districtName = page.elements.districtCre.find('option:selected').text()
+        const wardId = page.elements.wardCre.val()
+        const wardName = page.elements.wardCre.find('option:selected').text()
+        const address = page.elements.addressCre.val()
+
+        const locationRegion = {
+            provinceId,
+            provinceName,
+            districtId,
+            districtName,
+            wardId,
+            wardName,
+            address
+        }
+        const fullName = page.elements.fullNameCre.val()
+        const email = page.elements.emailCre.val()
+        const phone = page.elements.phoneCre.val()
+
+        const customer = {
+            fullName,
+            email,
+            phone,
+            locationRegion
+        }
+
+        page.elements.btnCreate.prop("disabled", true);
+
+        page.elements.loading.removeClass('hide')
+
+        setTimeout(() => {
+            $.ajax(
+                {
+                    method: 'POST',
+                    url: page.url.createCustomer,
+                    data: JSON.stringify(customer)
+                }
+            )
+                .done((data) => {
+                    const str = page.commands.renderPerson(data)
+                    page.elements.bodyCustomer.prepend(str);
+
+                    page.elements.modalCreate.modal('hide');
+
+                    page.elements.toastBody.text('Thêm mới thành công')
+                    toastBootstrap.show()
+                    page.commands.handleClickRow()
+                    setTimeout(() => {
+                        page.elements.btnCloseToast.click()
+                    }, 2000);
+                })
+                .fail((err) => {
+                    const responseJSON = err.responseJSON
+
+                    if (responseJSON) {
+                        let str = '<ul>'
+                        $.each(responseJSON, (k, v) => {
+                            if (k.includes('.')) {
+                                str += `<li><label for="${k.split('.')[1] + 'Cre'}">${v}</label></li>`
+                            } else {
+                                str += `<li><label for="${k + 'Cre'}">${v}</label></li>`
+                            }
+
+                        })
+
+                        str += '</ul>'
+
+                        $('.area-error').append(str).removeClass('hide').css('display', '')
+                    }
+                })
+                .always(() => {
+                    page.elements.btnCreate.prop("disabled", false);
+                    page.elements.loading.addClass('hide')
+                });
+        }, 1000);
+    }
+
+    page.elements.btnCreate.on('click', async () => {
+        page.elements.frmCreate.trigger('submit')
+    })
+
+    page.elements.btnUpdate.on('click', async () => {
+
+        const provinceId = page.elements.provinceUp.val()
+        const provinceName = page.elements.provinceUp.find('option:selected').text()
+        const districtId = page.elements.districtUp.val()
+        const districtName = page.elements.districtUp.find('option:selected').text()
+        const wardId = page.elements.wardUp.val()
+        const wardName = page.elements.wardUp.find('option:selected').text()
+        const address = page.elements.addressUp.val()
+
+        const locationRegion = {
+            id: customerId,
+            provinceId,
+            provinceName,
+            districtId,
+            districtName,
+            wardId,
+            wardName,
+            address
+        }
+
+        const fullName = page.elements.fullNameUp.val()
+        const email = page.elements.emailUp.val()
+        const phone = page.elements.phoneUp.val()
+
+        const customer = {
+            id: customerId,
+            fullName,
+            email,
+            phone,
+            locationRegion
+        }
+
+        const content = await fetchUpdatePerson(customerId, customer)
+
+        const updateRow = $('#tr_' + customerId)
+        const str = page.commands.renderPerson(content)
+        updateRow.replaceWith(str)
+
+        closeModal('modalUpdate')
+
+        page.elements.toastBody.text('Cập nhật thông tin thành công')
+        toastBootstrap.show()
+        page.commands.handleClickRow()
+
+        setTimeout(() => {
+            page.elements.btnCloseToast.click()
+        }, 2500);
+    });
+
+    page.elements.btnDeposit.on('click', async () => {
+        const transaction = parseFloat(page.elements.transactionDe.val())
+
+        const deposit={
+            customerId: customerId,
+            transactionAmount:transaction,
+
+        }
+        $.ajax({
+            headers: {
+                'accept': 'application/json',
+                'content-type': 'application/json'
+            },
+            type: 'POST',
+            url: "http://localhost:8080/api/customers/deposit/" + customerId,
+            data: JSON.stringify(deposit)
+        })
+            .done((data) => {
+                page.elements.modalDeposit.modal('hide');
+
+                const updateRow = $('#tr_' + customerId)
+                const str = page.commands.renderPerson(data)
+                updateRow.replaceWith(str)
+
+                page.elements.toastBody.text('Nạp tiền thành công')
+                toastBootstrap.show()
+                page.commands.handleClickRow()
+            })
+            .fail((errors) => {
+                const message = errors.responseJSON ? errors.responseJSON.transactionAmount : "Unknown error";
+
+                const str = `<div>${message}<div>`;
+
+                $('.error-area').empty().append(str).removeClass('hide').addClass('show');
+
+
+            })
+
+
+        setTimeout(() => {
+            page.elements.btnCloseToast.click()
+        }, 2500);
+    });
+
+    function openModal(elem) {
+        let el = document.getElementById(elem);
+        new bootstrap.Modal(el).show();
+    }
+
+    function closeModal(elem) {
+        document.getElementById(elem).style.display = "none"
+        document.getElementById(elem).classList.remove("show")
+        document.querySelector('.modal-backdrop').remove();
+        document.querySelector('body').setAttribute('style', 'overflow: none')
+    }
+
+    page.commands.handleClickRow = () => {
+        $('#tbCustomer tbody tr td').on('click', function () {
+            $('#tbCustomer tbody tr td span').removeClass('selected')
+            customerId = $(this).parent().attr('id').replace('tr_', '')
+
+            const elem = $(this).parent().find('td')[0]
+
+            const span = $(elem).find('span')
+            $(span).addClass('selected')
+
+            const str = page.commands.renderFooter()
+            page.elements.footer.html(str)
+
+            page.commands.handleClickEditButton()
+
+            page.commands.handleClickDepositButton()
+        })
+    }
+
+    page.commands.handleClickEditButton = () => {
+        $('footer button.edit').on('click', () => {
+            page.loadData.getCustomerById();
+        })
+    }
+    page.commands.handleClickDepositButton = () => {
+        $('footer button.deposit').on('click', () => {
+            page.loadData.getDepositById();
+        })
+    }
+
+    page.loadData.getCustomerById = async () => {
+        $.ajax({
+            url: page.url.getCustomerById + customerId,
+        })
+            .done(async (data) => {
+                // Lấy thông tin từ data và hiển thị lên modal
+                page.elements.fullNameUp.val(data.fullName);
+                page.elements.emailUp.val(data.email);
+                page.elements.phoneUp.val(data.phone);
+                page.elements.provinceUp.val(data.locationRegion.provinceId);
+
+                await page.commands.getAllDistricts(data.locationRegion.provinceId, page.elements.districtUp);
+                await page.commands.getAllWards(data.locationRegion.districtId, page.elements.wardUp);
+                page.elements.addressUp.val(data.locationRegion.address);
+
+                // Hiển thị modal
+                page.elements.modalUpdate.modal('show');
+            })
+            .fail((err) => {
+                // Xử lý lỗi
+            });
+    };
+
+    page.loadData.getDepositById = async () => {
+        $.ajax({
+            url: page.url.getCustomerById + customerId,
+        })
+            .done(async (data) => {
+                // Lấy thông tin từ data và hiển thị lên modal
+                page.elements.fullNameDe.val(data.fullName);
+                page.elements.emailDe.val(data.email);
+                page.elements.balanceDe.val(data.balance);
+
+                // Hiển thị modal
+                page.elements.modalDeposit.modal('show');
+            })
+            .fail((err) => {
+                // Xử lý lỗi
+            });
+    };
+
+    page.commands.getAllProvinces = async () => {
+        await $.ajax({
+            url: page.url.getAllProvinces
+        })
+            .done((data) => {
+                const provinces = data.results;
+
+                $.each(provinces, (index, item) => {
+                    const str = `<option value="${item.province_id}">${item.province_name}</option>`
+
+                    page.elements.provinceCre.append(str)
+                    page.elements.provinceUp.append(str)
+                })
+            })
+    }
+
+    page.commands.getAllDistricts = async (provinceId, elem) => {
+        await $.ajax({
+            url: page.url.getAllDistrictsByProvinceId + provinceId
+        })
+            .done((data) => {
+                $(elem).empty();
+
+                const districts = data.results;
+
+                $.each(districts, (index, item) => {
+                    const str = `<option value="${item.district_id}">${item.district_name}</option>`
+
+                    $(elem).append(str)
+                })
+            })
+    }
+
+    page.commands.getAllWards = (districtId, elem) => {
+        $.ajax({
+            url: page.url.getAllWardsByDistrictId + districtId
+        })
+            .done((data) => {
+                $(elem).empty();
+
+                const wards = data.results;
+
+                $.each(wards, (index, item) => {
+                    const str = `<option value="${item.ward_id}">${item.ward_name}</option>`
+
+                    $(elem).append(str)
+                })
+            })
+    }
+
+    page.elements.provinceCre.on('change', async function () {
+        const provinceId = $(this).val()
+
+        await page.commands.getAllDistricts(provinceId, page.elements.districtCre);
+
+        const districtId = page.elements.districtCre.find('option:selected').val()
+
+        page.commands.getAllWards(districtId, page.elements.wardCre)
+
+    })
+
+    page.elements.provinceUp.on('change', async function () {
+        const provinceId = $(this).val()
+
+        await page.commands.getAllDistricts(provinceId, page.elements.districtUp);
+
+        const districtId = page.elements.districtUp.find('option:selected').val()
+
+        page.commands.getAllWards(districtId, page.elements.wardUp)
+    })
+
+    page.elements.districtCre.on('change', function () {
+        const districtId = $(this).val()
+
+        page.commands.getAllWards(districtId, page.elements.wardCre)
+    })
+
+    page.elements.districtUp.on('change', function () {
+        const districtId = $(this).val()
+
+        page.commands.getAllWards(districtId, page.elements.wardUp)
+    })
+
+    $.ajaxSetup({
+        headers: {
+            "Content-type": "application/json; charset=UTF-8"
+        }
+    })
+
+
+    $(async () => {
+        page.loadData.getALlPerson()
+
+        await page.commands.getAllProvinces();
+
+        const provinceId = page.elements.provinceCre.find('option:selected').val()
+
+        await page.commands.getAllDistricts(provinceId, page.elements.districtCre);
+
+        const districtId = page.elements.districtCre.find('option:selected').val()
+
+        page.commands.getAllWards(districtId, page.elements.wardCre)
+
+    })
+
+</script>
+</body>
+
+</html>
