@@ -1,61 +1,58 @@
 <th:block th:fragment="modalTransfer">
-  <div class="modal fade" id="modalTransfer" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5">Modal Transfer</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form  method="post">
-            <div class="row mb-3 mt-3">
-              <div class="col-lg-3">
-                <label for="senderId" class="form-label fw-bold">Sender ID</label>
-                <input type="text" class="form-control" id="senderId"  readonly>
-              </div>
-              <div class="col-lg-3">
-                <label for="senderName" class="form-label fw-bold">Sender Name</label>
-                <input type="text" class="form-control" id="senderName"  readonly>
-              </div>
-              <div class="col-lg-3">
-                <label for="senderEmail" class="form-label fw-bold">Sender Email</label>
-                <input type="email" class="form-control" id="senderEmail"  readonly>
-              </div>
-              <div class="col-lg-3">
-                <label for="senderBalance" class="form-label fw-bold">Sender balance</label>
-                <input type="text" class="form-control" id="senderBalance"  disabled>
-              </div>
-            </div>
-            <div class="row mb-3">
-              <div class="col-lg-3">
-                <label class="form-label fw-bold">Recipient</label>
-                <select class="form-select" id="recipientId" >
-                </select>
-              </div>
-              <div class="col-lg-3">
-                <label for="transferAmount" class="form-label fw-bold">Transfer amount</label>
-                <input type="text" class="form-control" id="transferAmount" >
-              </div>
-              <div class="col-lg-3">
-                <label for="fees" class="form-label fw-bold">Fees (%)</label>
-                <input type="text" class="form-control" id="fees" value="10"  readonly>
-              </div>
-              <div class="col-lg-3">
-                <label for="transactionAmount" class="form-label fw-bold">Transaction amount</label>
-                <input type="text" class="form-control" id="transactionAmount" readonly>
-              </div>
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-outline-primary" id="btnTransfer">
-            <i class="fas fa-exchange-alt"></i>
-            Transfer
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+    <div class="modal fade" id="modalTransfer" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Modal create</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="area-error hide">
 
+                    </div>
+                    <form id="frmTransfer" method="post">
+                        <div class="row mb-3 mt-3">
+                            <div class="col-lg-4">
+                                <label for="senderNameTrf" class="form-label">Sender Name</label>
+                                <input type="text" class="form-control" id="senderNameTrf" name="senderNameTrf" readonly>
+                            </div>
+                            <div class="col-lg-4">
+                                <label for="senderPhoneTrf" class="form-label">Sender Phone</label>
+                                <input type="tel" class="form-control" id="senderPhoneTrf" readonly>
+                            </div>
+                            <div class="col-lg-4">
+                                <label for="senderBalanceTrf" class="form-label">Sender balance</label>
+                                <input type="text" class="form-control" id="senderBalanceTrf" readonly>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-lg-3">
+                                <label for="recipientTrf" class="form-label">Recipient</label>
+                                <select id="recipientTrf" class="form-select"></select>
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="transferAmountTrf" class="form-label">Transfer Amount ($)</label>
+                                <input type="text" class="form-control" id="transferAmountTrf">
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="feesAmountTrf" class="form-label">Fees (%)</label>
+                                <input type="text" class="form-control" id="feesAmountTrf" value="10" readonly>
+                            </div>
+                            <div class="col-lg-3">
+                                <label for="transactionAmountTrf" class="form-label">Transaction Amount ($)</label>
+                                <input type="text" class="form-control" id="transactionAmountTrf" readonly>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-outline-primary" id="btnTransfer">
+                        <i class="fas fa-exchange"></i>
+                        Transfer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </th:block>

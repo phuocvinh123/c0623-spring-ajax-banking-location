@@ -34,13 +34,6 @@ public class LocationRegionServiceImpl implements ILocationRegionService {
     }
 
     @Override
-    public void update(Long aLong, LocationRegion locationRegion) {
-
-    }
-
-
-
-    @Override
     public void deleteById(Long id) {
 
     }

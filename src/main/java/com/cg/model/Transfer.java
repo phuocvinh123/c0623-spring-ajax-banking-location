@@ -40,4 +40,13 @@ public class Transfer extends BaseEntity {
     @Column(name = "transaction_amount", columnDefinition = "decimal(10,0)", nullable = false)
     private BigDecimal transactionAmount;
 
+
+    public Transfer(Customer sender, Customer recipient, BigDecimal transferAmount, Long fee, BigDecimal feeAmount, BigDecimal transactionAmount) {
+        this.sender = sender;
+        this.recipient=recipient;
+        this.transferAmount=transferAmount;
+        this.fees=fee;
+        this.feesAmount=feeAmount;
+        this.transactionAmount=transactionAmount;
+    }
 }

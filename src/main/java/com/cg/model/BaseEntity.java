@@ -8,7 +8,7 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @Getter
@@ -21,7 +21,7 @@ public abstract class BaseEntity {
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
     @CreatedBy
     @Column(name = "created_by")
@@ -29,7 +29,7 @@ public abstract class BaseEntity {
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
 
     @LastModifiedBy
     @Column(name = "updated_by")

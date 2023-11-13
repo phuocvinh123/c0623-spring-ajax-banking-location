@@ -1,6 +1,10 @@
 package com.cg.service.customer;
 
 import com.cg.model.*;
+import com.cg.model.dto.request.TransferReqDTO;
+import com.cg.model.dto.response.CustomerResDTO;
+import com.cg.model.dto.request.CustomerUpReqDTO;
+import com.cg.model.dto.response.RecipientWithOutSenderDTO;
 import com.cg.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,15 +51,17 @@ public class CustomerServiceImpl implements ICustomerService {
     }
 
     @Override
-    public void save(Customer customer) {
-        customerRepository.save(customer);
+    public List<CustomerResDTO> findAllCustomerResDTO() {
+        return customerRepository.findAllCustomerResDTO();
     }
 
     @Override
-    public void update(Long aLong, Customer customer) {
-        Customer oldCustomer = findById(customer.getId()).get();
-        customer.setBalance(oldCustomer.getBalance());
-        customer.setDeleted(oldCustomer.getDeleted());
+    public List<RecipientWithOutSenderDTO> findAllRecipientWithOutSenderDTO(Long customerId) {
+        return customerRepository.findAllRecipientWithOutSenderDTO(customerId);
+    }
+
+    @Override
+    public void save(Customer customer) {
         customerRepository.save(customer);
     }
 
@@ -69,74 +75,56 @@ public class CustomerServiceImpl implements ICustomerService {
     }
 
 
+    @Override
+    public void update(Long customerId, Long locationRegionId, CustomerUpReqDTO customerUpReqDTO) {
+        Customer customer = customerUpReqDTO.toCustomer(customerId);
+
+        LocationRegion locationRegion = customer.getLocationRegion();
+        locationRegion.setId(locationRegionId);
+        locationRegionRepository.save(locationRegion);
+
+        customer.setId(customerId);
+        customerRepository.save(customer);
+    }
 
     @Override
     public void deposit(Deposit deposit) {
-
         depositRepository.save(deposit);
-
-//        Customer customer = deposit.getCustomer();
-//        BigDecimal currentBalance = customer.getBalance();
-//        BigDecimal transactionAmount = deposit.getTransactionAmount();
-//        BigDecimal newBalance = currentBalance.add(transactionAmount);
-//        customer.setBalance(newBalance);
-//        customerRepository.save(customer);
-
         customerRepository.incrementBalance(deposit.getCustomer().getId(), deposit.getTransactionAmount());
     }
 
     @Override
     public void withdraw(Withdraw withdraw) {
-        Customer customer = withdraw.getCustomer();
-        BigDecimal currentBalance = customer.getBalance();
-        BigDecimal transactionAmount = withdraw.getTransactionAmount();
-        BigDecimal newBalance = currentBalance.subtract(transactionAmount);
-        customer.setBalance(newBalance);
-
-        customerRepository.save(customer);
-
         withdrawRepository.save(withdraw);
+        customerRepository.decrementBalance(withdraw.getCustomer().getId(),withdraw.getTransactionAmount());
+
+
     }
 
     @Override
-    public void transfer(Transfer transfer) {
+    public void transfer(TransferReqDTO transferReqDTO) {
+        Long senderId = Long.valueOf(transferReqDTO.getSenderId());
+        Long recipientId = Long.valueOf(transferReqDTO.getRecipientId());
+        String transferAmountStr = transferReqDTO.getTransferAmount();
+        BigDecimal transferAmount = BigDecimal.valueOf(Long.parseLong(transferAmountStr));
+        Long fee = 10L;
 
-        Customer sender = transfer.getSender();
-        Customer recipient = transfer.getRecipient();
+        BigDecimal feeAmount = transferAmount.multiply(BigDecimal.valueOf(fee)).divide(BigDecimal.valueOf(100));
+        BigDecimal transactionAmount = transferAmount.add(feeAmount);
 
-        BigDecimal transferAmount = transfer.getTransferAmount();
-        Long fees = 10L;
-        BigDecimal feesAmount = transferAmount.multiply(BigDecimal.valueOf(fees)).divide(BigDecimal.valueOf(100L));
-        BigDecimal transactionAmount = transferAmount.add(feesAmount);
+        customerRepository.decrementBalance(senderId, transactionAmount);
+        customerRepository.incrementBalance(recipientId, transferAmount);
 
-        transfer.setFees(fees);
-        transfer.setFeesAmount(feesAmount);
-        transfer.setTransactionAmount(transactionAmount);
+        Optional<Customer> sender = customerRepository.findById(senderId);
+        Optional<Customer> recipient = customerRepository.findById(recipientId);
 
-        BigDecimal senderCurrentBalance = sender.getBalance();
-        BigDecimal newSenderBalance = senderCurrentBalance.subtract(transactionAmount);
-        sender.setBalance(newSenderBalance);
-
-        BigDecimal recipientCurrentBalance = recipient.getBalance();
-        BigDecimal newRecipientBalance = recipientCurrentBalance.add(transferAmount);
-        recipient.setBalance(newRecipientBalance);
-
-        customerRepository.save(sender);
-        customerRepository.save(recipient);
+        Transfer transfer = new Transfer(sender.get(),recipient.get(),transferAmount,fee,feeAmount,transactionAmount);
 
         transferRepository.save(transfer);
+
     }
 
-    @Override
-    public Customer update(Customer customer) {
-        Customer oldCustomer = findById(customer.getId()).get();
-        customer.setBalance(oldCustomer.getBalance());
-        customer.setDeleted(oldCustomer.getDeleted());
-        locationRegionRepository.save(customer.getLocationRegion());
-        customerRepository.save(customer);
 
-        return customer;
-    }
 
     @Override
     public void deleteById(Long id) {

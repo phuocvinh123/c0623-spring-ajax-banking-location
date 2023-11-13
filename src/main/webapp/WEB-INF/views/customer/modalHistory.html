@@ -1,0 +1,31 @@
+<th:block th:fragment="modalHistory">
+    <div class="modal fade" id="modalHistory" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Modal History</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="content">
+                    <table id="tbCustomer" class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>senderId</th>
+                            <th>senderName</th>
+                            <th>recipientName</th>
+                            <th>Transfer Amount ($)</th>
+                            <th>Fees (%)</th>
+                            <th>Fees Amount</th>
+                            <th>Transaction Amount ($)</th>
+                            <th>Date</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>

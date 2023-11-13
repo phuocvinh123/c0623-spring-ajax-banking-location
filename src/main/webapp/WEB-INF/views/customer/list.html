@@ -3,203 +3,202 @@
 
 <head>
     <title>List of customers</title>
-    <th:block th:replace="layout/head"/>
+    <th:block th:replace="layout/head" />
 </head>
 
 <body>
-<div class="container-fluid">
-    <header>
-        <nav class="navbar bg-body-tertiary">
-            <div class="container-fluid">
-                <a class="navbar-brand">List of customers</a>
-                <div class="d-flex" style="gap: 10px;">
-                    <button class="btn btn-outline-light" type="button">
-                        <i class="fas fa-history"></i>
-                        Transfer histories
-                    </button>
-                    <button type="button" class="btn btn-outline-light" data-bs-toggle="modal"
-                            data-bs-target="#modalCreate">
-                        <i class="far fa-plus-square"></i>
-                        Add new customer
-                    </button>
+    <div class="container-fluid">
+        <header>
+            <nav class="navbar bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand">List of customers</a>
+                    <div class="d-flex" style="gap: 10px;">
+                        <button class="btn btn-outline-light" type="button" data-bs-toggle="modal"
+                                data-bs-target="#modalHistory">
+                            <i class="fas fa-history"></i>
+                            Transfer histories
+                        </button>
+                        <button type="button" class="btn btn-outline-light" data-bs-toggle="modal"
+                                data-bs-target="#modalCreate">
+                            <i class="far fa-plus-square"></i>
+                            Add new customer
+                        </button>
+                    </div>
                 </div>
-            </div>
-        </nav>
-    </header>
+            </nav>
+        </header>
 
-    <div class="content">
-        <table id="tbCustomer" class="table table-hover">
-            <thead>
-            <tr>
-                <th></th>
-                <th>#</th>
-                <th>FullName</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Province</th>
-                <th>District</th>
-                <th>Ward</th>
-                <th>Address</th>
-                <th>Balance</th>
-            </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div class="content">
+            <table id="tbCustomer" class="table table-hover">
+                <thead>
+                <tr>
+                    <th></th>
+                    <th>Sender_id</th>
+                    <th>Sender_Name</th>
+                    <th>Recipient_Name</th>
+                    <th>Transfer Amount ($)</th>
+                    <th>Fees (%)</th>
+                    <th>Fees Amount</th>
+                    <th>Transaction Amount ($)</th>
+                    <th>Date</th>
+
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <footer>
+
+        </footer>
     </div>
 
-    <footer>
-
-    </footer>
-</div>
-
-<div id="loading" class="sk-chase hide">
-    <div class="sk-chase-dot"></div>
-    <div class="sk-chase-dot"></div>
-    <div class="sk-chase-dot"></div>
-    <div class="sk-chase-dot"></div>
-    <div class="sk-chase-dot"></div>
-    <div class="sk-chase-dot"></div>
-</div>
+    <div id="loading" class="sk-chase hide">
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+        <div class="sk-chase-dot"></div>
+    </div>
 
 
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="liveToast" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive"
-         aria-atomic="true">
-        <div class="d-flex">
-            <div id="toast-body" class="toast-body">
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive"
+             aria-atomic="true">
+            <div class="d-flex">
+                <div id="toast-body" class="toast-body">
+                </div>
+                <button type="button" id="btnCloseToast" class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
-            <button type="button" id="btnCloseToast" class="btn-close btn-close-white me-2 m-auto"
-                    data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
     </div>
-</div>
 
-<!-- Modal Create -->
-<th:block th:replace="customer/modalCreate"/>
+    <!-- Modal Create -->
+    <th:block th:replace="customer/modalCreate" />
 
-<!-- Modal Update -->
-<th:block th:replace="customer/modalUpdate"/>
+    <!-- Modal Update -->
+    <th:block th:replace="customer/modalUpdate" />
 
-<!-- Modal Deposit -->
-<th:block th:replace="customer/modalDeposit"/>
+    <!-- Modal Deposit -->
+    <th:block th:replace="customer/modalDeposit" />
 
-<!-- Modal Withdraw -->
-<th:block th:replace="customer/modalWithdraw"/>
+    <!-- Modal Withdraw -->
+    <th:block th:replace="customer/modalWithdraw" />
 
-<!-- Modal Transfer -->
-<th:block th:replace="customer/modalTransfer"/>
+    <!-- Modal Transfer -->
+    <th:block th:replace="customer/modalTransfer" />
 
-<script>
+    <!-- Modal History -->
+    <th:block th:replace="customer/modalHistory" />
 
-    const page = {
-        url: {
-            getAllProvinces: 'https://vapi.vnappmob.com/api/province/',
-            getAllDistrictsByProvinceId: 'https://vapi.vnappmob.com/api/province/district/',
-            getAllWardsByDistrictId: 'https://vapi.vnappmob.com/api/province/ward/',
-            getCustomerById: 'http://localhost:8080/api/customers/',
-            createCustomer: 'http://localhost:8080/api/customers'
-        },
-        elements: {},
-        loadData: {},
-        commands: {}
-    }
-    //create
-    page.elements.modalCreate = $('#modalCreate');
-    page.elements.frmCreate = $('#frmCreate');
-    page.elements.fullNameCre = $('#fullNameCre');
-    page.elements.emailCre = $('#emailCre');
-    page.elements.phoneCre = $('#phoneCre');
-    page.elements.provinceCre = $('#provinceCre');
-    page.elements.districtCre = $('#districtCre');
-    page.elements.wardCre = $('#wardCre');
-    page.elements.addressCre = $('#addressCre');
-    page.elements.btnCreate = $('#btnCreate');
-    //Update
-    page.elements.modalUpdate = $('#modalUpdate');
-    page.elements.frmUpdate = $('#frmUpdate');
-    page.elements.fullNameUp = $('#fullNameUp');
-    page.elements.emailUp = $('#emailUp');
-    page.elements.phoneUp = $('#phoneUp');
-    page.elements.provinceUp = $('#provinceUp');
-    page.elements.districtUp = $('#districtUp');
-    page.elements.wardUp = $('#wardUp');
-    page.elements.addressUp = $('#addressUp');
-    page.elements.btnUpdate = $('#btnUpdate');
-    //Deposit
-    page.elements.modalDeposit = $('#modalDeposit');
-    page.elements.frmDeposit = $('#frmDeposit');
-    page.elements.fullNameDe = $('#fullNameDe');
-    page.elements.emailDe = $('#emailDe');
-    page.elements.balanceDe = $('#balanceDe');
-    page.elements.transactionDe = $('#transactionDe');
-    page.elements.btnDeposit = $('#btnDeposit');
+    <script>
 
-
-    page.elements.bodyCustomer = $('#tbCustomer tbody')
-    page.elements.footer = $('footer')
-
-    page.elements.loading = $('#loading');
-
-    page.elements.toastLive = $('#liveToast')
-    page.elements.toastBody = $('#toast-body')
-    page.elements.btnCloseToast = $('#btnCloseToast')
-
-    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(page.elements.toastLive)
-
-    let customerId = 0;
-
-    async function fetchALlPerson() {
-        return await $.ajax({
-            url: "http://localhost:8080/api/customers"
-        })
-    }
-
-    page.loadData.getALlPerson = async () => {
-        const persons = await fetchALlPerson();
-
-        persons.forEach(item => {
-            const str = page.commands.renderPerson(item)
-            // bodyCustomer.innerHTML += str;
-            page.elements.bodyCustomer.prepend(str);
-        });
-
-        page.commands.handleClickRow()
-
-
-    }
-
-    const getPersonById = async (customerId) => {
-        const response = await fetch("http://localhost:8080/api/customers/" + customerId);
-        return await response.json();
-
-    }
-    const fetchUpdatePerson = (customerId, obj) => {
-        return $.ajax({
-            method: 'PATCH',
-            url: "http://localhost:8080/api/customers/" + customerId,
-            headers: {
-                "Content-type": "application/json; charset=UTF-8"
+        const page = {
+            url: {
+                getAllProvinces: 'https://vapi.vnappmob.com/api/province/',
+                getAllDistrictsByProvinceId: 'https://vapi.vnappmob.com/api/province/district/',
+                getAllWardsByDistrictId: 'https://vapi.vnappmob.com/api/province/ward/',
+                getCustomerById: 'http://localhost:8080/api/customers/',
+                getAllRecipientsWithOutId: 'http://localhost:8080/api/customers/get-all-recipient-with-out-id/',
+                createCustomer: 'http://localhost:8080/api/customers',
+                updateCustomer: 'http://localhost:8080/api/customers',
+                createDeposit: 'http://localhost:8080/api/customers/deposit/',
+                createWithdraw: 'http://localhost:8080/api/customers/withdraw/',
+                createTransfer: 'http://localhost:8080/api/customers/transfer/'
             },
-            data: JSON.stringify(obj),
-            dataType: 'json'
-        });
-    };
+            elements: {},
+            loadData: {},
+            commands: {}
+        }
 
-    const fetchCreateCustomer = (customerId, obj) => {
-        return $.ajax({
-            method: 'POST',
-            url: "http://localhost:8080/api/customers/" + customerId,
-            headers: {
-                "Content-type": "application/json; charset=UTF-8"
-            },
-            data: JSON.stringify(obj),
-            dataType: 'json'
-        });
-    };
+        page.elements.modalCreate = $('#modalCreate');
+        page.elements.frmCreate = $('#frmCreate');
+        page.elements.fullNameCre = $('#fullNameCre');
+        page.elements.emailCre = $('#emailCre');
+        page.elements.phoneCre = $('#phoneCre');
+        page.elements.provinceCre = $('#provinceCre');
+        page.elements.districtCre = $('#districtCre');
+        page.elements.wardCre = $('#wardCre');
+        page.elements.addressCre = $('#addressCre');
+        page.elements.btnCreate = $('#btnCreate');
 
-    page.commands.renderPerson = (obj) => {
-        return `
+        page.elements.modalUpdate = $('#modalUpdate');
+        page.elements.frmUpdate = $('#frmUpdate');
+        page.elements.fullNameUp = $('#fullNameUp');
+        page.elements.emailUp = $('#emailUp');
+        page.elements.phoneUp = $('#phoneUp');
+        page.elements.provinceUp = $('#provinceUp');
+        page.elements.districtUp = $('#districtUp');
+        page.elements.wardUp = $('#wardUp');
+        page.elements.addressUp = $('#addressUp');
+        page.elements.btnUpdate = $('#btnUpdate');
+
+        page.elements.modalDeposit = $('#modalDeposit');
+        page.elements.frmDeposit = $('#frmDeposit');
+        page.elements.fullNameDe = $('#fullNameDe');
+        page.elements.emailDe = $('#emailDe');
+        page.elements.balanceDe = $('#balanceDe');
+        page.elements.transactionDe = $('#transactionDe');
+        page.elements.btnDeposit = $('#btnDeposit');
+
+        page.elements.modalWithdraw = $('#modalWithdraw');
+        page.elements.frmWithdraw = $('#frmWithdraw');
+        page.elements.fullNameWi = $('#fullNameWi');
+        page.elements.emailWi = $('#emailWi');
+        page.elements.balanceWi = $('#balanceWi');
+        page.elements.transactionWi = $('#transactionWi');
+        page.elements.btnWithdraw = $('#btnWithdraw');
+
+        page.elements.modalTransfer = $('#modalTransfer');
+        page.elements.frmTransfer = $('#frmTransfer');
+        page.elements.senderNameTrf = $('#senderNameTrf');
+        page.elements.senderPhoneTrf = $('#senderPhoneTrf');
+        page.elements.senderBalanceTrf = $('#senderBalanceTrf');
+        page.elements.transferAmountTrf=$('#transferAmountTrf')
+        page.elements.recipientTrf = $('#recipientTrf');
+        page.elements.btnTransfer = $('#btnTransfer');
+
+        page.elements.bodyCustomer = $('#tbCustomer tbody')
+        page.elements.footer = $('footer')
+
+        page.elements.loading = $('#loading');
+
+        page.elements.toastLive = $('#liveToast')
+        page.elements.toastBody = $('#toast-body')
+        page.elements.btnCloseToast = $('#btnCloseToast')
+
+        // const toastBootstrap = bootstrap.Toast.getOrCreateInstance(page.elements.toastLive)
+
+        let customerId = 0;
+
+        async function fetchALlPerson() {
+            return await $.ajax({
+                url: "http://localhost:8080/api/customers"
+            })
+        }
+
+        page.loadData.getALlPerson = async () => {
+            const persons = await fetchALlPerson();
+
+            persons.forEach(item => {
+                const str = page.commands.renderPerson(item)
+                // bodyCustomer.innerHTML += str;
+                page.elements.bodyCustomer.prepend(str);
+            });
+        }
+
+
+        page.commands.getAllRecipientsWithOutId = async (customerId) => {
+            return await $.ajax({
+                url: page.url.getAllRecipientsWithOutId + customerId
+            })
+        }
+
+        page.commands.renderPerson = (obj) => {
+            return `
                 <tr id="tr_${obj.id}">
                     <td><span></span></td>
                     <td>${obj.id}</td>
@@ -213,11 +212,15 @@
                     <td>${obj.balance}</td>
                 </tr>
             `
-    }
+        }
 
-    page.commands.renderFooter = () => {
-        return `
-                <button class="btn btn-secondary edit" >
+        page.commands.renderRecipient = (obj) => {
+            return `<option value="${obj.id}">${'(' + obj.id + ') - ' + obj.fullName}</option>`
+        }
+
+        page.commands.renderFooter = () => {
+            return `
+                <button class="btn btn-secondary edit">
                     <i class="far fa-edit"></i>
                     Update
                 </button>
@@ -233,113 +236,416 @@
                     <i class="fas fa-exchange-alt"></i>
                     Transfer
                 </button>
-                <button class="btn btn-danger delete">
+                <button class="btn btn-danger">
                     <i class="fas fa-ban"></i>
                     Inactive
                 </button>
             `
-    }
-
-    $('#modalCreate').on('hidden.bs.modal', () => {
-        $('#frmCreate').trigger('reset')
-        $('#frmCreate input').removeClass('error')
-        $('#frmCreate label.error').remove()
-    })
-
-    page.elements.frmCreate.validate({
-        onkeyup: function (element) {
-            $(element).valid()
-        },
-        onclick: false,
-        onfocusout: false,
-        // rules: {
-        //     fullNameCre: {
-        //         required: true
-        //     },
-        //     addressCre: {
-        //         required: true
-        //     }
-        // },
-        // messages: {
-        //     fullNameCre: {
-        //         required: 'FullName is required'
-        //     },
-        //     addressCre: {
-        //         required: 'Address is required'
-        //     }
-        // },
-        errorLabelContainer: "#modalCreate .area-error",
-        errorPlacement: function (error, element) {
-            error.appendTo("#modalCreate .area-error");
-        },
-        showErrors: function (errorMap, errorList) {
-            if (this.numberOfInvalids() > 0) {
-                $("#modalCreate .area-error").removeClass("hide").addClass("show");
-            } else {
-                $("#modalCreate .area-error").removeClass("show").addClass("hide").empty();
-                $("#frmCreate input.error").removeClass("error");
-            }
-            this.defaultShowErrors();
-        },
-        submitHandler: () => {
-            page.commands.createCustomer()
-            page.commands.handleClickRow()
-        }
-    })
-
-    page.commands.createCustomer = () => {
-        const provinceId = page.elements.provinceCre.val()
-        const provinceName = page.elements.provinceCre.find('option:selected').text()
-        const districtId = page.elements.districtCre.val()
-        const districtName = page.elements.districtCre.find('option:selected').text()
-        const wardId = page.elements.wardCre.val()
-        const wardName = page.elements.wardCre.find('option:selected').text()
-        const address = page.elements.addressCre.val()
-
-        const locationRegion = {
-            provinceId,
-            provinceName,
-            districtId,
-            districtName,
-            wardId,
-            wardName,
-            address
-        }
-        const fullName = page.elements.fullNameCre.val()
-        const email = page.elements.emailCre.val()
-        const phone = page.elements.phoneCre.val()
-
-        const customer = {
-            fullName,
-            email,
-            phone,
-            locationRegion
         }
 
-        page.elements.btnCreate.prop("disabled", true);
+        page.elements.modalCreate.on('hidden.bs.modal', () => {
+            $('#modalCreate .area-error').empty().addClass('hide');
+            $('#frmCreate').trigger('reset')
+            $('#frmCreate input').removeClass('error')
+            $('#frmCreate label.error').remove()
+        })
 
-        page.elements.loading.removeClass('hide')
+        page.elements.modalUpdate.on('hidden.bs.modal', () => {
+            $('#modalUpdate .area-error').empty().addClass('hide');
+            page.elements.frmUpdate.trigger('reset')
+            $('#frmUpdate input').removeClass('error')
+            $('#frmUpdate label.error').remove()
+        })
 
-        setTimeout(() => {
-            $.ajax(
-                {
-                    method: 'POST',
-                    url: page.url.createCustomer,
-                    data: JSON.stringify(customer)
+        page.elements.modalDeposit.on('hidden.bs.modal', () => {
+            $('#modalDeposit .area-error').empty().addClass('hide');
+            page.elements.frmDeposit.trigger('reset')
+            $('#frmDeposit input').removeClass('error')
+            $('#frmDeposit label.error').remove()
+        })
+
+        page.elements.modalWithdraw.on('hidden.bs.modal', () => {
+            $('#modalWithdraw .area-error').empty().addClass('hide');
+            page.elements.frmWithdraw.trigger('reset')
+            $('#frmWithdraw input').removeClass('error')
+            $('#frmWithdraw label.error').remove()
+        })
+
+        page.elements.modalTransfer.on('hidden.bs.modal', () => {
+            $('#modalTransfer .area-error').empty().addClass('hide');
+            page.elements.frmTransfer.trigger('reset')
+            $('#frmTransfer input').removeClass('error')
+            $('#frmTransfer label.error').remove()
+        })
+
+
+
+
+        page.elements.frmCreate.validate({
+            onkeyup: function(element) {$(element).valid()},
+            onclick: false,
+            onfocusout: false,
+            // rules: {
+            //     fullNameCre: {
+            //         required: true
+            //     },
+            //     addressCre: {
+            //         required: true
+            //     }
+            // },
+            // messages: {
+            //     fullNameCre: {
+            //         required: 'FullName is required'
+            //     },
+            //     addressCre: {
+            //         required: 'Address is required'
+            //     }
+            // },
+            errorLabelContainer: "#modalCreate .area-error",
+            errorPlacement: function (error, element) {
+                error.appendTo("#modalCreate .area-error");
+            },
+            showErrors: function(errorMap, errorList) {
+                if (this.numberOfInvalids() > 0) {
+                    $("#modalCreate .area-error").removeClass("hide").addClass("show");
+                } else {
+                    $("#modalCreate .area-error").removeClass("show").addClass("hide").empty();
+                    $("#frmCreate input.error").removeClass("error");
                 }
-            )
+                this.defaultShowErrors();
+            },
+            submitHandler: () => {
+                page.commands.createCustomer()
+            }
+        })
+
+        page.elements.frmUpdate.validate({
+            onkeyup: function(element) {$(element).valid()},
+            onclick: false,
+            onfocusout: false,
+            // rules: {
+            //     fullNameUp: {
+            //         required: true
+            //     },
+            //     addressUp: {
+            //         required: true
+            //     }
+            // },
+            // messages: {
+            //     fullNameUp: {
+            //         required: 'FullName is required'
+            //     },
+            //     addressUp: {
+            //         required: 'Address is required'
+            //     }
+            // },
+            errorLabelContainer: "#modalUpdate .area-error",
+            errorPlacement: function (error, element) {
+                error.appendTo("#modalUpdate .area-error");
+            },
+            showErrors: function(errorMap, errorList) {
+                if (this.numberOfInvalids() > 0) {
+                    $("#modalUpdate .area-error").removeClass("hide").addClass("show");
+                } else {
+                    $("#modalUpdate .area-error").removeClass("show").addClass("hide").empty();
+                    $("#frmUpdate input.error").removeClass("error");
+                }
+                this.defaultShowErrors();
+            },
+            submitHandler: () => {
+                page.commands.updateCustomer();
+            }
+        })
+
+        page.elements.frmDeposit.validate({
+            onkeyup: function(element) {$(element).valid()},
+            onclick: false,
+            onfocusout: false,
+            // rules: {
+            //     fullNameUp: {
+            //         required: true
+            //     },
+            //     addressUp: {
+            //         required: true
+            //     }
+            // },
+            // messages: {
+            //     fullNameUp: {
+            //         required: 'FullName is required'
+            //     },
+            //     addressUp: {
+            //         required: 'Address is required'
+            //     }
+            // },
+            errorLabelContainer: "#modalDeposit .area-error",
+            errorPlacement: function (error, element) {
+                error.appendTo("#modalDeposit .area-error");
+            },
+            showErrors: function(errorMap, errorList) {
+                if (this.numberOfInvalids() > 0) {
+                    $("#modalDeposit .area-error").removeClass("hide").addClass("show");
+                } else {
+                    $("#modalDeposit .area-error").removeClass("show").addClass("hide").empty();
+                    $("#frmDeposit input.error").removeClass("error");
+                }
+                this.defaultShowErrors();
+            },
+            submitHandler: () => {
+                page.commands.depositCustomer();
+            }
+        })
+
+        page.elements.frmWithdraw.validate({
+            onkeyup: function(element) {$(element).valid()},
+            onclick: false,
+            onfocusout: false,
+            // rules: {
+            //     fullNameUp: {
+            //         required: true
+            //     },
+            //     addressUp: {
+            //         required: true
+            //     }
+            // },
+            // messages: {
+            //     fullNameUp: {
+            //         required: 'FullName is required'
+            //     },
+            //     addressUp: {
+            //         required: 'Address is required'
+            //     }
+            // },
+            errorLabelContainer: "#modalWithdraw .area-error",
+            errorPlacement: function (error, element) {
+                error.appendTo("#modalWithdraw .area-error");
+            },
+            showErrors: function(errorMap, errorList) {
+                if (this.numberOfInvalids() > 0) {
+                    $("#modalWithdraw .area-error").removeClass("hide").addClass("show");
+                } else {
+                    $("#modalWithdraw .area-error").removeClass("show").addClass("hide").empty();
+                    $("#frmWithdraw input.error").removeClass("error");
+                }
+                this.defaultShowErrors();
+            },
+            submitHandler: () => {
+                page.commands.withdrawCustomer();
+            }
+        })
+
+        page.elements.frmTransfer.validate({
+            onkeyup: function(element) {$(element).valid()},
+            onclick: false,
+            onfocusout: false,
+            // rules: {
+            //     fullNameUp: {
+            //         required: true
+            //     },
+            //     addressUp: {
+            //         required: true
+            //     }
+            // },
+            // messages: {
+            //     fullNameUp: {
+            //         required: 'FullName is required'
+            //     },
+            //     addressUp: {
+            //         required: 'Address is required'
+            //     }
+            // },
+            errorLabelContainer: "#modalTransfer .area-error",
+            errorPlacement: function (error, element) {
+                error.appendTo("#modalTransfer .area-error");
+            },
+            showErrors: function(errorMap, errorList) {
+                if (this.numberOfInvalids() > 0) {
+                    $("#modalTransfer .area-error").removeClass("hide").addClass("show");
+                } else {
+                    $("#modalTransfer .area-error").removeClass("show").addClass("hide").empty();
+                    $("#frmTransfer input.error").removeClass("error");
+                }
+                this.defaultShowErrors();
+            },
+            submitHandler: () => {
+                page.commands.transferCustomer();
+            }
+        })
+
+        page.commands.createCustomer = () => {
+            const provinceId = page.elements.provinceCre.val()
+            const provinceName = page.elements.provinceCre.find('option:selected').text()
+            const districtId = page.elements.districtCre.val()
+            const districtName = page.elements.districtCre.find('option:selected').text()
+            const wardId = page.elements.wardCre.val()
+            const wardName = page.elements.wardCre.find('option:selected').text()
+            const address = page.elements.addressCre.val()
+
+            const locationRegion = {
+                provinceId,
+                provinceName,
+                districtId,
+                districtName,
+                wardId,
+                wardName,
+                address
+            }
+
+            const fullName = page.elements.fullNameCre.val()
+            const email = page.elements.emailCre.val()
+            const phone = page.elements.phoneCre.val()
+
+            const customer = {
+                fullName,
+                email,
+                phone,
+                locationRegion
+            }
+
+            page.elements.btnCreate.prop("disabled", true);
+
+            page.elements.loading.removeClass('hide')
+
+            setTimeout(() => {
+                $.ajax(
+                    {
+                        method: 'POST',
+                        url: page.url.createCustomer,
+                        data: JSON.stringify(customer)
+                    }
+                )
+                    .done((data) => {
+                        const str = page.commands.renderPerson(data)
+                        page.elements.bodyCustomer.prepend(str);
+
+                        page.elements.modalCreate.modal('hide');
+
+                        page.elements.toastBody.text('Thêm mới thành công')
+
+                        setTimeout(() => {
+                            page.elements.btnCloseToast.click()
+                        }, 2000);
+                    })
+                    .fail((err) => {
+                        const responseJSON = err.responseJSON
+
+                        if (responseJSON) {
+                            let str = '<ul>'
+                            $.each(responseJSON, (k, v) => {
+                                if (k.includes('.')) {
+                                    str += `<li><label for="${k.split('.')[1] + 'Cre'}">${v}</label></li>`
+                                }
+                                else {
+                                    str += `<li><label for="${k + 'Cre'}">${v}</label></li>`
+                                }
+
+                            })
+
+                            str += '</ul>'
+
+                            $('#modalCreate .area-error').append(str).removeClass('hide').css('display', '')
+                        }
+                    })
+                    .always(() => {
+                        page.elements.btnCreate.prop("disabled", false);
+                        page.elements.loading.addClass('hide')
+                    });
+            }, 1000);
+        }
+
+        page.commands.updateCustomer = () => {
+            const provinceId = page.elements.provinceUp.val()
+            const provinceName = page.elements.provinceUp.find('option:selected').text();
+            const districtId = page.elements.districtUp.val()
+            const districtName = page.elements.districtUp.find('option:selected').text();
+            const wardId = page.elements.wardUp.val()
+            const wardName = page.elements.wardUp.find('option:selected').text();
+            const address = page.elements.addressUp.val()
+
+            const locationRegion = {
+                provinceId,
+                provinceName,
+                districtId,
+                districtName,
+                wardId,
+                wardName,
+                address
+            }
+
+            const fullName = page.elements.fullNameUp.val()
+            const phone = page.elements.phoneUp.val()
+
+            const customer = {
+                fullName,
+                phone,
+                locationRegion
+            }
+
+            page.elements.loading.removeClass('hide')
+            setTimeout(() => {
+                $.ajax({
+                    method: 'PATCH',
+                    url: page.url.updateCustomer + '/' + customerId,
+                    data: JSON.stringify(customer)
+                })
+                    .done((data) => {
+                        const updateRow = $('#tr_' + customerId)
+                        const str = page.commands.renderPerson(data)
+                        updateRow.replaceWith(str)
+
+                        page.elements.modalUpdate.modal('hide');
+
+                        AppUtils.showSuccess('Cập nhật thông tin thành công');
+
+                    })
+                    .fail((err) => {
+                        const responseJSON = err.responseJSON
+
+                        if (responseJSON) {
+                            let str = '<ul>'
+                            $.each(responseJSON, (k, v) => {
+                                if (k.includes('.')) {
+                                    str += `<li><label for="${k.split('.')[1] + 'Cre'}">${v}</label></li>`
+                                } else {
+                                    str += `<li><label for="${k + 'Up'}">${v}</label></li>`
+                                }
+
+                            })
+
+                            str += '</ul>'
+
+                            $('#modalUpdate .area-error').append(str).removeClass('hide').css('display', '')
+                        }
+                    })
+                    .always(() => {
+                        page.elements.btnUpdate.prop("disabled", false);
+                        page.elements.loading.addClass('hide')
+                    });
+            }, 1000);
+        }
+
+        page.commands.depositCustomer = () => {
+
+            const deposit = {
+                customerId: customerId,
+                transactionAmount: page.elements.transactionDe.val()
+            }
+
+            page.elements.loading.removeClass('hide')
+            setTimeout(() => {
+            $.ajax({
+                method: 'POST',
+                url: page.url.createDeposit + customerId,
+                data: JSON.stringify(deposit)
+            })
                 .done((data) => {
+                    const updateRow = $('#tr_' + customerId)
                     const str = page.commands.renderPerson(data)
-                    page.elements.bodyCustomer.prepend(str);
+                    updateRow.replaceWith(str)
 
-                    page.elements.modalCreate.modal('hide');
+                    page.elements.modalDeposit.modal('hide');
 
-                    page.elements.toastBody.text('Thêm mới thành công')
-                    toastBootstrap.show()
-                    page.commands.handleClickRow()
-                    setTimeout(() => {
-                        page.elements.btnCloseToast.click()
-                    }, 2000);
+                    AppUtils.showSuccess('Nạp tiền thành công thành công');
+
                 })
                 .fail((err) => {
                     const responseJSON = err.responseJSON
@@ -349,311 +655,364 @@
                         $.each(responseJSON, (k, v) => {
                             if (k.includes('.')) {
                                 str += `<li><label for="${k.split('.')[1] + 'Cre'}">${v}</label></li>`
-                            } else {
-                                str += `<li><label for="${k + 'Cre'}">${v}</label></li>`
+                            }
+                            else {
+                                str += `<li><label for="${k + 'Up'}">${v}</label></li>`
                             }
 
                         })
 
                         str += '</ul>'
 
-                        $('.area-error').append(str).removeClass('hide').css('display', '')
+                        $('#modalDeposit .area-error').append(str).removeClass('hide').css('display', '')
                     }
                 })
                 .always(() => {
-                    page.elements.btnCreate.prop("disabled", false);
+                    page.elements.btnDeposit.prop("disabled", false);
                     page.elements.loading.addClass('hide')
                 });
-        }, 1000);
-    }
-
-    page.elements.btnCreate.on('click', async () => {
-        page.elements.frmCreate.trigger('submit')
-    })
-
-    page.elements.btnUpdate.on('click', async () => {
-
-        const provinceId = page.elements.provinceUp.val()
-        const provinceName = page.elements.provinceUp.find('option:selected').text()
-        const districtId = page.elements.districtUp.val()
-        const districtName = page.elements.districtUp.find('option:selected').text()
-        const wardId = page.elements.wardUp.val()
-        const wardName = page.elements.wardUp.find('option:selected').text()
-        const address = page.elements.addressUp.val()
-
-        const locationRegion = {
-            id: customerId,
-            provinceId,
-            provinceName,
-            districtId,
-            districtName,
-            wardId,
-            wardName,
-            address
+            }, 1000);
         }
 
-        const fullName = page.elements.fullNameUp.val()
-        const email = page.elements.emailUp.val()
-        const phone = page.elements.phoneUp.val()
+        page.commands.withdrawCustomer = () => {
 
-        const customer = {
-            id: customerId,
-            fullName,
-            email,
-            phone,
-            locationRegion
-        }
-
-        const content = await fetchUpdatePerson(customerId, customer)
-
-        const updateRow = $('#tr_' + customerId)
-        const str = page.commands.renderPerson(content)
-        updateRow.replaceWith(str)
-
-        closeModal('modalUpdate')
-
-        page.elements.toastBody.text('Cập nhật thông tin thành công')
-        toastBootstrap.show()
-        page.commands.handleClickRow()
-
-        setTimeout(() => {
-            page.elements.btnCloseToast.click()
-        }, 2500);
-    });
-
-    page.elements.btnDeposit.on('click', async () => {
-        const transaction = parseFloat(page.elements.transactionDe.val())
-
-        const deposit={
-            customerId: customerId,
-            transactionAmount:transaction,
-
-        }
-        $.ajax({
-            headers: {
-                'accept': 'application/json',
-                'content-type': 'application/json'
-            },
-            type: 'POST',
-            url: "http://localhost:8080/api/customers/deposit/" + customerId,
-            data: JSON.stringify(deposit)
-        })
-            .done((data) => {
-                page.elements.modalDeposit.modal('hide');
-
-                const updateRow = $('#tr_' + customerId)
-                const str = page.commands.renderPerson(data)
-                updateRow.replaceWith(str)
-
-                page.elements.toastBody.text('Nạp tiền thành công')
-                toastBootstrap.show()
-                page.commands.handleClickRow()
+            const withdraw = {
+                customerId: customerId,
+                transactionAmount: page.elements.transactionWi.val()
+            }
+            page.elements.loading.removeClass('hide')
+            setTimeout(() => {
+            $.ajax({
+                method: 'POST',
+                url: page.url.createWithdraw + customerId,
+                data: JSON.stringify(withdraw)
             })
-            .fail((errors) => {
-                const message = errors.responseJSON ? errors.responseJSON.transactionAmount : "Unknown error";
+                .done((data) => {
+                    const updateRow = $('#tr_' + customerId)
+                    const str = page.commands.renderPerson(data)
+                    updateRow.replaceWith(str)
 
-                const str = `<div>${message}<div>`;
+                    page.elements.modalWithdraw.modal('hide');
 
-                $('.error-area').empty().append(str).removeClass('hide').addClass('show');
+                    AppUtils.showSuccess('Rút tiền thành công ');
 
+                })
+                .fail((err) => {
+                    const responseJSON = err.responseJSON
 
+                    if (responseJSON) {
+                        let str = '<ul>'
+                        $.each(responseJSON, (k, v) => {
+                            if (k.includes('.')) {
+                                str += `<li><label for="${k.split('.')[1] + 'Cre'}">${v}</label></li>`
+                            }
+                            else {
+                                str += `<li><label for="${k + 'Up'}">${v}</label></li>`
+                            }
+
+                        })
+
+                        str += '</ul>'
+
+                        $('#modalWithdraw.area-error').append(str).removeClass('hide').css('display', '')
+                    }
+                })
+                .always(() => {
+                    page.elements.btnWithdraw.prop("disabled", false);
+                    page.elements.loading.addClass('hide')
+                });
+            }, 1000);
+        }
+
+        page.commands.transferCustomer = () => {
+
+            const transfer = {
+                senderId: customerId,
+                recipientId:page.elements.recipientTrf.val(),
+                transferAmount: page.elements.transferAmountTrf.val()
+            }
+            page.elements.loading.removeClass('hide')
+            setTimeout(() => {
+                $.ajax({
+                    method: 'POST',
+                    url: page.url.createTransfer + customerId ,
+                    data: JSON.stringify(transfer)
+                })
+                    .done((data) => {
+                        console.log(data)
+                        const updateRowSender = $('#tr_' + customerId)
+                        const updateRowReceipient = $('#tr_' + transfer.recipientId)
+                        const strSender = page.commands.renderPerson(data.sender)
+                        const strReceipient = page.commands.renderPerson(data.recipient)
+                        updateRowSender.replaceWith(strSender)
+                        updateRowReceipient.replaceWith(strReceipient)
+
+                        page.elements.modalTransfer.modal('hide');
+
+                        AppUtils.showSuccess('Chuyển tiền thành công ');
+
+                    })
+                    .fail((err) => {
+                        const responseJSON = err.responseJSON
+
+                        if (responseJSON) {
+                            let str = '<ul>'
+                            $.each(responseJSON, (k, v) => {
+                                if (k.includes('.')) {
+                                    str += `<li><label for="${k.split('.')[1] + 'Cre'}">${v}</label></li>`
+                                }
+                                else {
+                                    str += `<li><label for="${k + 'Up'}">${v}</label></li>`
+                                }
+
+                            })
+
+                            str += '</ul>'
+
+                            $('#modalTransfer.area-error').append(str).removeClass('hide').css('display', '')
+                        }
+                    })
+                    .always(() => {
+                        page.elements.btnTransfer.prop("disabled", false);
+                        page.elements.loading.addClass('hide')
+                    });
+            }, 1000);
+        }
+
+        page.elements.btnCreate.on('click', async () => {
+            page.elements.frmCreate.trigger('submit')
+        })
+
+        page.elements.btnUpdate.on('click', async () => {
+            page.elements.frmUpdate.trigger('submit');
+        })
+
+        page.elements.btnDeposit.on('click', async () => {
+            page.elements.frmDeposit.trigger('submit');
+        })
+
+        page.elements.btnWithdraw.on('click', async () => {
+            page.elements.frmWithdraw.trigger('submit');
+        })
+
+        page.elements.btnTransfer.on('click', async () => {
+            page.elements.frmTransfer.trigger('submit');
+        })
+
+        page.commands.handleClickRow = () => {
+            $('#tbCustomer tbody').on('click', 'tr td', function () {
+                $('#tbCustomer tbody tr td span').removeClass('selected')
+                customerId = $(this).parent().attr('id').replace('tr_', '')
+
+                const elem = $(this).parent().find('td')[0]
+
+                const span = $(elem).find('span')
+                $(span).addClass('selected')
+
+                const str = page.commands.renderFooter()
+                page.elements.footer.html(str)
+
+                page.commands.handleClickEditButton()
+
+                page.commands.handleClickDepositButton()
+
+                page.commands.handleClickWithdrawButton()
+
+                page.commands.handleClickTransferButton()
             })
+        }
 
+        page.commands.handleClickEditButton = () => {
+            $('footer button.edit').on('click', async () => {
+                const customer = await page.loadData.getCustomerById();
 
-        setTimeout(() => {
-            page.elements.btnCloseToast.click()
-        }, 2500);
-    });
+                page.elements.fullNameUp.val(customer.fullName)
+                page.elements.emailUp.val(customer.email)
+                page.elements.phoneUp.val(customer.phone)
+                page.elements.addressUp.val(customer.locationRegion.address)
+                page.elements.provinceUp.val(customer.locationRegion.provinceId)
 
-    function openModal(elem) {
-        let el = document.getElementById(elem);
-        new bootstrap.Modal(el).show();
-    }
+                await page.commands.getAllDistricts(customer.locationRegion.provinceId, page.elements.districtUp)
 
-    function closeModal(elem) {
-        document.getElementById(elem).style.display = "none"
-        document.getElementById(elem).classList.remove("show")
-        document.querySelector('.modal-backdrop').remove();
-        document.querySelector('body').setAttribute('style', 'overflow: none')
-    }
+                await page.commands.getAllWards(customer.locationRegion.districtId, page.elements.wardUp)
 
-    page.commands.handleClickRow = () => {
-        $('#tbCustomer tbody tr td').on('click', function () {
-            $('#tbCustomer tbody tr td span').removeClass('selected')
-            customerId = $(this).parent().attr('id').replace('tr_', '')
-
-            const elem = $(this).parent().find('td')[0]
-
-            const span = $(elem).find('span')
-            $(span).addClass('selected')
-
-            const str = page.commands.renderFooter()
-            page.elements.footer.html(str)
-
-            page.commands.handleClickEditButton()
-
-            page.commands.handleClickDepositButton()
-        })
-    }
-
-    page.commands.handleClickEditButton = () => {
-        $('footer button.edit').on('click', () => {
-            page.loadData.getCustomerById();
-        })
-    }
-    page.commands.handleClickDepositButton = () => {
-        $('footer button.deposit').on('click', () => {
-            page.loadData.getDepositById();
-        })
-    }
-
-    page.loadData.getCustomerById = async () => {
-        $.ajax({
-            url: page.url.getCustomerById + customerId,
-        })
-            .done(async (data) => {
-                // Lấy thông tin từ data và hiển thị lên modal
-                page.elements.fullNameUp.val(data.fullName);
-                page.elements.emailUp.val(data.email);
-                page.elements.phoneUp.val(data.phone);
-                page.elements.provinceUp.val(data.locationRegion.provinceId);
-
-                await page.commands.getAllDistricts(data.locationRegion.provinceId, page.elements.districtUp);
-                await page.commands.getAllWards(data.locationRegion.districtId, page.elements.wardUp);
-                page.elements.addressUp.val(data.locationRegion.address);
-
-                // Hiển thị modal
                 page.elements.modalUpdate.modal('show');
             })
-            .fail((err) => {
-                // Xử lý lỗi
-            });
-    };
+        }
 
-    page.loadData.getDepositById = async () => {
-        $.ajax({
-            url: page.url.getCustomerById + customerId,
-        })
-            .done(async (data) => {
-                // Lấy thông tin từ data và hiển thị lên modal
-                page.elements.fullNameDe.val(data.fullName);
-                page.elements.emailDe.val(data.email);
-                page.elements.balanceDe.val(data.balance);
+        page.commands.handleClickDepositButton = () => {
+            $('footer button.deposit').on('click', async () => {
+                const customer = await page.loadData.getCustomerById();
 
-                // Hiển thị modal
+                page.elements.fullNameDe.val(customer.fullName)
+                page.elements.emailDe.val(customer.email)
+                page.elements.balanceDe.val(customer.balance)
+
                 page.elements.modalDeposit.modal('show');
             })
-            .fail((err) => {
-                // Xử lý lỗi
-            });
-    };
-
-    page.commands.getAllProvinces = async () => {
-        await $.ajax({
-            url: page.url.getAllProvinces
-        })
-            .done((data) => {
-                const provinces = data.results;
-
-                $.each(provinces, (index, item) => {
-                    const str = `<option value="${item.province_id}">${item.province_name}</option>`
-
-                    page.elements.provinceCre.append(str)
-                    page.elements.provinceUp.append(str)
-                })
-            })
-    }
-
-    page.commands.getAllDistricts = async (provinceId, elem) => {
-        await $.ajax({
-            url: page.url.getAllDistrictsByProvinceId + provinceId
-        })
-            .done((data) => {
-                $(elem).empty();
-
-                const districts = data.results;
-
-                $.each(districts, (index, item) => {
-                    const str = `<option value="${item.district_id}">${item.district_name}</option>`
-
-                    $(elem).append(str)
-                })
-            })
-    }
-
-    page.commands.getAllWards = (districtId, elem) => {
-        $.ajax({
-            url: page.url.getAllWardsByDistrictId + districtId
-        })
-            .done((data) => {
-                $(elem).empty();
-
-                const wards = data.results;
-
-                $.each(wards, (index, item) => {
-                    const str = `<option value="${item.ward_id}">${item.ward_name}</option>`
-
-                    $(elem).append(str)
-                })
-            })
-    }
-
-    page.elements.provinceCre.on('change', async function () {
-        const provinceId = $(this).val()
-
-        await page.commands.getAllDistricts(provinceId, page.elements.districtCre);
-
-        const districtId = page.elements.districtCre.find('option:selected').val()
-
-        page.commands.getAllWards(districtId, page.elements.wardCre)
-
-    })
-
-    page.elements.provinceUp.on('change', async function () {
-        const provinceId = $(this).val()
-
-        await page.commands.getAllDistricts(provinceId, page.elements.districtUp);
-
-        const districtId = page.elements.districtUp.find('option:selected').val()
-
-        page.commands.getAllWards(districtId, page.elements.wardUp)
-    })
-
-    page.elements.districtCre.on('change', function () {
-        const districtId = $(this).val()
-
-        page.commands.getAllWards(districtId, page.elements.wardCre)
-    })
-
-    page.elements.districtUp.on('change', function () {
-        const districtId = $(this).val()
-
-        page.commands.getAllWards(districtId, page.elements.wardUp)
-    })
-
-    $.ajaxSetup({
-        headers: {
-            "Content-type": "application/json; charset=UTF-8"
         }
-    })
+
+        page.commands.handleClickWithdrawButton = () => {
+            $('footer button.withdraw').on('click', async () => {
+                const customer = await page.loadData.getCustomerById();
+
+                page.elements.fullNameWi.val(customer.fullName)
+                page.elements.emailWi.val(customer.email)
+                page.elements.balanceWi.val(customer.balance)
+
+                page.elements.modalWithdraw.modal('show');
+            })
+        }
+
+        page.commands.handleClickTransferButton = () => {
+
+            $('footer button.transfer').on('click', async () => {
+
+                const customer = await page.loadData.getCustomerById();
+
+                const recipients = await page.commands.getAllRecipientsWithOutId(customer.id);
+
+                page.elements.senderNameTrf.val(customer.fullName)
+                page.elements.senderPhoneTrf.val(customer.phone)
+                page.elements.senderBalanceTrf.val(customer.balance)
+
+                // $.each(recipients, (index, item) => {
+                //     const str = page.commands.renderRecipient(item)
+                //     page.elements.recipientTrf.append(str)
+                // })
+                const recipientStr = recipients.map(item => page.commands.renderRecipient(item)).join('');
+                page.elements.recipientTrf.append(recipientStr);
+
+                const transferAmountElem = $("#transferAmountTrf");
+                const transactionAmountElem = $("#transactionAmountTrf");
+
+                transferAmountElem.on("input", function () {
+                    const transferAmount = +this.value;
+
+                    const fees = 10;
+                    const feesAmount = transferAmount * fees / 100;
+
+                    transactionAmountElem.val(transferAmount + feesAmount);
+                })
+
+                page.elements.modalTransfer.modal('show');
+            })
+        }
+
+        page.loadData.getCustomerById = async () => {
+            return await $.ajax({
+                url: page.url.getCustomerById + customerId,
+            })
+        }
+
+        page.commands.getAllProvinces = async () => {
+            await $.ajax({
+                url: page.url.getAllProvinces
+            })
+                .done((data) => {
+                    const provinces = data.results;
+
+                    $.each(provinces, (index, item) => {
+                        const str = `<option value="${item.province_id}">${item.province_name}</option>`
+
+                        page.elements.provinceCre.append(str)
+                        page.elements.provinceUp.append(str)
+                    })
+                })
+        }
+
+        page.commands.getAllDistricts = async (provinceId, elem) => {
+            await $.ajax({
+                url: page.url.getAllDistrictsByProvinceId + provinceId
+            })
+                .done((data) => {
+                    $(elem).empty();
+
+                    const districts = data.results;
+
+                    $.each(districts, (index, item) => {
+                        const str = `<option value="${item.district_id}">${item.district_name}</option>`
+
+                        $(elem).append(str)
+                    })
+                })
+        }
+
+        page.commands.getAllWards = (districtId, elem) => {
+            $.ajax({
+                url: page.url.getAllWardsByDistrictId + districtId
+            })
+                .done((data) => {
+                    $(elem).empty();
+
+                    const wards = data.results;
+
+                    $.each(wards, (index, item) => {
+                        const str = `<option value="${item.ward_id}">${item.ward_name}</option>`
+
+                        $(elem).append(str)
+                    })
+                })
+        }
+
+        page.elements.provinceCre.on('change', async function () {
+            const provinceId = $(this).val()
+
+            await page.commands.getAllDistricts(provinceId, page.elements.districtCre);
+
+            const districtId = page.elements.districtCre.find('option:selected').val()
+
+            page.commands.getAllWards(districtId, page.elements.wardCre)
+
+        })
+
+        page.elements.provinceUp.on('change', async function () {
+            const provinceId = $(this).val()
+
+            await page.commands.getAllDistricts(provinceId, page.elements.districtUp);
+
+            const districtId = page.elements.districtUp.find('option:selected').val()
+
+            page.commands.getAllWards(districtId, page.elements.wardUp)
+        })
+
+        page.elements.districtCre.on('change',  function () {
+            const districtId = $(this).val()
+
+            page.commands.getAllWards(districtId, page.elements.wardCre)
+        })
+
+        page.elements.districtUp.on('change',  function () {
+            const districtId = $(this).val()
+
+            page.commands.getAllWards(districtId, page.elements.wardUp)
+        })
+
+        $.ajaxSetup({
+            headers: {
+                "Content-type": "application/json; charset=UTF-8"
+            }
+        })
 
 
-    $(async () => {
-        page.loadData.getALlPerson()
+        $(async () => {
+            page.loadData.getALlPerson()
 
-        await page.commands.getAllProvinces();
+            page.commands.handleClickRow();
 
-        const provinceId = page.elements.provinceCre.find('option:selected').val()
+            await page.commands.getAllProvinces();
 
-        await page.commands.getAllDistricts(provinceId, page.elements.districtCre);
+            const provinceId = page.elements.provinceCre.find('option:selected').val()
 
-        const districtId = page.elements.districtCre.find('option:selected').val()
+            await page.commands.getAllDistricts(provinceId, page.elements.districtCre);
 
-        page.commands.getAllWards(districtId, page.elements.wardCre)
+            const districtId = page.elements.districtCre.find('option:selected').val()
 
-    })
+            page.commands.getAllWards(districtId, page.elements.wardCre)
 
-</script>
+        })
+
+    </script>
 </body>
 
 </html>

@@ -4,15 +4,18 @@ package com.cg.controller.rest;
 import com.cg.exception.DataInputException;
 import com.cg.model.Customer;
 import com.cg.model.Deposit;
-import com.cg.model.dto.request.CustomerCreReqDTO;
-import com.cg.model.dto.request.DepositReqDTO;
+import com.cg.model.Withdraw;
+import com.cg.model.dto.request.*;
 import com.cg.model.dto.response.CustomerResDTO;
+import com.cg.model.dto.response.RecipientWithOutSenderDTO;
+import com.cg.model.dto.response.TransferResDTO;
 import com.cg.service.customer.ICustomerService;
 import com.cg.utils.AppUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,9 +35,17 @@ public class CustomerResController {
 
     @GetMapping
     public ResponseEntity<?> getALl() {
-        List<Customer> customers = customerService.findAll();
+        List<CustomerResDTO> customerResDTOS = customerService.findAllCustomerResDTO();
 
-        return new ResponseEntity<>(customers, HttpStatus.OK);
+//        List<Customer> customers = customerService.findAll();
+//        List<CustomerResDTO> customerResDTOS = new ArrayList<>();
+//
+//        for (Customer customer : customers) {
+//            CustomerResDTO customerResDTO = customer.toCustomerResDTO();
+//            customerResDTOS.add(customerResDTO);
+//        }
+
+        return new ResponseEntity<>(customerResDTOS, HttpStatus.OK);
     }
 
     @GetMapping("/{customerId}")
@@ -48,6 +59,14 @@ public class CustomerResController {
 
 
         return new ResponseEntity<>(customerResDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/get-all-recipient-with-out-id/{senderId}")
+    public ResponseEntity<?> getAllRecipientsWithOutId(@PathVariable Long senderId) {
+
+        List<RecipientWithOutSenderDTO> recipients = customerService.findAllRecipientWithOutSenderDTO(senderId);
+
+        return new ResponseEntity<>(recipients, HttpStatus.OK);
     }
 
     @PostMapping
@@ -69,16 +88,29 @@ public class CustomerResController {
     }
 
     @PatchMapping("/{customerId}")
-    public ResponseEntity<Customer> update( @RequestBody Customer customer) {
-        Customer customerUpdate = customerService.update(customer);
+    public ResponseEntity<?> update(@PathVariable Long customerId, @Validated @RequestBody CustomerUpReqDTO customerUpReqDTO, BindingResult bindingResult) {
 
-        return new ResponseEntity<>(customerUpdate, HttpStatus.OK);
+        Customer customer = customerService.findById(customerId).orElseThrow(() -> {
+           throw new DataInputException("Customer not found");
+        });
+
+        new CustomerUpReqDTO().validate(customerUpReqDTO, bindingResult);
+
+        if (bindingResult.hasFieldErrors()) {
+            return appUtils.mapErrorToResponse(bindingResult);
+        }
+
+        customerService.update(customerId, customer.getLocationRegion().getId(), customerUpReqDTO);
+
+        customer = customerService.findById(customerId).get();
+
+        return new ResponseEntity<>(customer.toCustomerResDTO(), HttpStatus.OK);
     }
 
     @PostMapping("/deposit/{customerId}")
-    public ResponseEntity<?> deposit(@RequestBody DepositReqDTO depositReqDTO) {
-        Optional<Customer> customer = customerService.findById(Long.valueOf(depositReqDTO.getCustomerId()));
-        BigDecimal transactionAmount = BigDecimal.valueOf(Long.parseLong(String.valueOf(depositReqDTO.getTransactionAmount())));
+    public ResponseEntity<?> deposit(@RequestBody DepositCreReqDTO depositCreReqDTO) {
+        Optional<Customer> customer = customerService.findById(Long.valueOf(depositCreReqDTO.getCustomerId()));
+        BigDecimal transactionAmount = BigDecimal.valueOf(Long.parseLong(String.valueOf(depositCreReqDTO.getTransactionAmount())));
 
         Deposit deposit = new Deposit();
         deposit.setCustomer(customer.get());
@@ -89,4 +121,39 @@ public class CustomerResController {
 
         return new ResponseEntity<>(updateCustomer.get().toCustomerResDTO(), HttpStatus.OK);
     }
+
+    @PostMapping("/withdraw/{customerId}")
+    public ResponseEntity<?> withdraw(@RequestBody WithdrawReqDTO withdrawReqDTO) {
+        Optional<Customer> customer = customerService.findById(Long.valueOf(withdrawReqDTO.getCustomerId()));
+        BigDecimal transactionAmount = BigDecimal.valueOf(Long.parseLong(withdrawReqDTO.getTransactionAmount()));
+
+        Withdraw withdraw = new Withdraw();
+        withdraw.setCustomer(customer.get());
+        withdraw.setTransactionAmount(transactionAmount);
+
+        customerService.withdraw(withdraw);
+        Optional<Customer> updateCustomer = customerService.findById(withdraw.getCustomer().getId());
+
+        return new ResponseEntity<>(updateCustomer.get().toCustomerResDTO(), HttpStatus.OK);
+    }
+    @PostMapping("/transfer/{customerId}")
+    public ResponseEntity<?> transfer(@PathVariable Long customerId, @RequestBody TransferReqDTO transferReqDTO) {
+
+        Optional<Customer> senderOptional = customerService.findById(customerId);
+        customerService.transfer(transferReqDTO);
+
+        TransferResDTO transferResDTO = new TransferResDTO();
+
+        Optional<Customer> recipientOptional = customerService.findById(Long.parseLong(transferReqDTO.getRecipientId()));
+
+
+        CustomerResDTO sender = senderOptional.get().toCustomerResDTO();
+        CustomerResDTO recipient = recipientOptional.get().toCustomerResDTO();
+
+        transferResDTO.setSender(sender);
+        transferResDTO.setRecipient(recipient);
+
+        return new ResponseEntity<>(transferResDTO, HttpStatus.OK);
+    }
+
 }

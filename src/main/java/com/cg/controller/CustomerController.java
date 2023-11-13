@@ -1,9 +1,6 @@
 package com.cg.controller;
 
-import com.cg.model.Customer;
-import com.cg.model.Deposit;
-import com.cg.model.Transfer;
-import com.cg.model.Withdraw;
+import com.cg.model.*;
 import com.cg.service.customer.CustomerServiceImpl;
 import com.cg.service.customer.ICustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -183,28 +180,28 @@ public class CustomerController {
         return "customer/withdraw";
     }
 
-    @PostMapping("/transfer/{senderId}")
-    public String transfer(@PathVariable Long senderId, @ModelAttribute Transfer transfer, Model model) {
-
-        Optional<Customer> sender = customerService.findById(senderId);
-
-        Optional<Customer> recipient = customerService.findById(transfer.getRecipient().getId());
-
-        transfer.setSender(sender.get());
-        transfer.setRecipient(recipient.get());
-
-        customerService.transfer(transfer);
-
-        sender = customerService.findById(senderId);
-
-        Transfer newTransfer = new Transfer();
-        newTransfer.setSender(sender.get());
-
-        List<Customer> recipients = customerService.findAllByIdNot(senderId);
-
-        model.addAttribute("transfer", newTransfer);
-        model.addAttribute("recipients", recipients);
-
-        return "customer/transfer";
-    }
+//    @PostMapping("/transfer/{senderId}")
+//    public String transfer(@PathVariable Long senderId, @ModelAttribute Transfer transfer, Model model) {
+//
+//        Optional<Customer> sender = customerService.findById(senderId);
+//
+//        Optional<Customer> recipient = customerService.findById(transfer.getRecipient().getId());
+//
+//        transfer.setSender(sender.get());
+//        transfer.setRecipient(recipient.get());
+//
+//        customerService.transfer(transfer);
+//
+//        sender = customerService.findById(senderId);
+//
+//        Transfer newTransfer = new Transfer();
+//        newTransfer.setSender(sender.get());
+//
+//        List<Customer> recipients = customerService.findAllByIdNot(senderId);
+//
+//        model.addAttribute("transfer", newTransfer);
+//        model.addAttribute("recipients", recipients);
+//
+//        return "customer/transfer";
+//    }
 }
