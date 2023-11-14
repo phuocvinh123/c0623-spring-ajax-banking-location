@@ -4,12 +4,14 @@ package com.cg.controller.rest;
 import com.cg.exception.DataInputException;
 import com.cg.model.Customer;
 import com.cg.model.Deposit;
+import com.cg.model.Transfer;
 import com.cg.model.Withdraw;
 import com.cg.model.dto.request.*;
 import com.cg.model.dto.response.CustomerResDTO;
 import com.cg.model.dto.response.RecipientWithOutSenderDTO;
 import com.cg.model.dto.response.TransferResDTO;
 import com.cg.service.customer.ICustomerService;
+import com.cg.service.transfer.TransferServiceImpl;
 import com.cg.utils.AppUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,6 +31,9 @@ public class CustomerResController {
 
     @Autowired
     private ICustomerService customerService;
+
+    @Autowired
+    private TransferServiceImpl transferService;
 
     @Autowired
     private AppUtils appUtils;
@@ -155,5 +160,9 @@ public class CustomerResController {
 
         return new ResponseEntity<>(transferResDTO, HttpStatus.OK);
     }
-
+    @GetMapping("/histories")
+    public ResponseEntity<?> getAllHistories() {
+        List<Transfer> histories = transferService.findAll();
+        return new ResponseEntity<>(histories, HttpStatus.OK);
+    }
 }

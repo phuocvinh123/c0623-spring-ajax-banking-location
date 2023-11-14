@@ -33,14 +33,15 @@
                 <thead>
                 <tr>
                     <th></th>
-                    <th>Sender_id</th>
-                    <th>Sender_Name</th>
-                    <th>Recipient_Name</th>
-                    <th>Transfer Amount ($)</th>
-                    <th>Fees (%)</th>
-                    <th>Fees Amount</th>
-                    <th>Transaction Amount ($)</th>
-                    <th>Date</th>
+                    <th>#</th>
+                    <th>FullName</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Province</th>
+                    <th>District</th>
+                    <th>Ward</th>
+                    <th>Address</th>
+                    <th>Balance</th>
 
                 </tr>
                 </thead>
@@ -162,6 +163,7 @@
         page.elements.btnTransfer = $('#btnTransfer');
 
         page.elements.bodyCustomer = $('#tbCustomer tbody')
+        page.elements.bodyHistory = $('#tbHistory tbody')
         page.elements.footer = $('footer')
 
         page.elements.loading = $('#loading');
@@ -190,6 +192,21 @@
             });
         }
 
+        async function fetchALlHis() {
+            return await $.ajax({
+                url: "http://localhost:8080/api/customers/histories"
+            })
+        }
+
+        page.loadData.getALlHis = async () => {
+            const persons = await fetchALlHis();
+
+            persons.forEach(item => {
+                const str = page.commands.renderHis(item)
+                // bodyCustomer.innerHTML += str;
+                page.elements.bodyHistory.prepend(str);
+            });
+        }
 
         page.commands.getAllRecipientsWithOutId = async (customerId) => {
             return await $.ajax({
@@ -210,6 +227,22 @@
                     <td>${obj.locationRegion.wardName}</td>
                     <td>${obj.locationRegion.address}</td>
                     <td>${obj.balance}</td>
+                </tr>
+            `
+        }
+
+        page.commands.renderHis = (obj) => {
+            return `
+                <tr id="tr_${obj.id}">
+                    <td><span></span></td>
+                    <td>${obj.id}</td>
+                    <td>${obj.sender.fullName}</td>
+                    <td>${obj.recipient.fullName}</td>
+                    <td>${obj.transferAmount}</td>
+                    <td>${obj.fees}</td>
+                    <td>${obj.feesAmount}</td>
+                    <td>${obj.transactionAmount}</td>
+                    <td>${obj.createdAt}</td>
                 </tr>
             `
         }
@@ -865,23 +898,19 @@
         }
 
         page.commands.handleClickTransferButton = () => {
-
             $('footer button.transfer').on('click', async () => {
-
                 const customer = await page.loadData.getCustomerById();
-
                 const recipients = await page.commands.getAllRecipientsWithOutId(customer.id);
 
-                page.elements.senderNameTrf.val(customer.fullName)
-                page.elements.senderPhoneTrf.val(customer.phone)
-                page.elements.senderBalanceTrf.val(customer.balance)
+                page.elements.senderNameTrf.val(customer.fullName);
+                page.elements.senderPhoneTrf.val(customer.phone);
+                page.elements.senderBalanceTrf.val(customer.balance);
 
-                // $.each(recipients, (index, item) => {
-                //     const str = page.commands.renderRecipient(item)
-                //     page.elements.recipientTrf.append(str)
-                // })
+                const recipientTrfElem = page.elements.recipientTrf;
+                recipientTrfElem.empty(); // Xóa nội dung hiện tại của recipientTrf
+
                 const recipientStr = recipients.map(item => page.commands.renderRecipient(item)).join('');
-                page.elements.recipientTrf.append(recipientStr);
+                recipientTrfElem.append(recipientStr);
 
                 const transferAmountElem = $("#transferAmountTrf");
                 const transactionAmountElem = $("#transactionAmountTrf");
@@ -997,6 +1026,8 @@
 
         $(async () => {
             page.loadData.getALlPerson()
+
+            page.loadData.getALlHis()
 
             page.commands.handleClickRow();
 
